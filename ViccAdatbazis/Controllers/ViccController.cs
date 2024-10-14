@@ -28,9 +28,9 @@ namespace ViccAdatbazis.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Vicc>> GetVicc(int id)
         {
-            var vicc = _context.Viccek.FindAsync(id);
+            var vicc = await _context.Viccek.FindAsync(id);
 
-            return vicc == null ? NotFound() : Ok(vicc);
+            return vicc == null ? NotFound() : vicc;
         }
 
         // Új vicc feltöltése
@@ -87,7 +87,36 @@ namespace ViccAdatbazis.Controllers
         }
 
         // Vicc likeolása
+        [Route("{id}/like")]
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PatchLike(int id)
+        {
+            var modositottVicc = await _context.Viccek.FindAsync(id);
+
+            if (modositottVicc.Id != id)
+            {
+                return BadRequest();
+            }
+            modositottVicc.Tetszik++;
+            _context.Entry(modositottVicc).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
 
         // Vicc dislikeolása
+        [HttpPatch("{id}/dislike")]
+        public async Task<ActionResult> PatchDislike(int id)
+        {
+            var modositottVicc = await _context.Viccek.FindAsync(id);
+
+            if (modositottVicc.Id != id)
+            {
+                return BadRequest();
+            }
+            modositottVicc.NemTetszik++;
+            _context.Entry(modositottVicc).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }
